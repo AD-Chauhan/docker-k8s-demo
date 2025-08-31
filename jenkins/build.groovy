@@ -1,7 +1,6 @@
 pipeline{
 	agent any
 	environment{
-	   DOCKER_HUB_CREDENTIALS = 'DockerHubId'
 	   DOCKER_IMAGE_NAME = 'ad1989/docker-k8s'  // Set a name for the Docker image
 	   DOCKER_TAG = '1'         // Tag for the Docker image (e.g., "1")
 		   
@@ -16,17 +15,18 @@ pipeline{
 	
 	stage("Build With Gradle"){
 	 steps {
-		        sh 'chmod +x ./gradlew'
-                sh './gradlew build' 
+                bat 'gradlew build' 
         }
 	}
 	
 	 stage("Build Image"){
 		 steps{
-		 script {
-	     // Build the Docker image using the Dockerfile
-                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
-		}
+		script {
+            withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
+            }
+          }
 	  }
 	}
 	
@@ -41,10 +41,10 @@ pipeline{
 	  }
 	}
 	
-	  stage('Deploying container to Kubernetes') {
+   stage('Deploying container to Kubernetes') {
 	      steps {
 		  script {
-	       withKubeConfig([credentialsId: 'k8sId']) {
+	       withKubeConfig([credentialsId: 'KUBECONFIG_CREDENTIAL']) {
                  bat 'kubectl delete svc docker-k8s-service'
 			     bat 'kubectl apply -f docker-k8s-service.yaml'
           }
@@ -52,7 +52,6 @@ pipeline{
 	      }
 	  
 	}
-	
   }
   post {
 	  always {
@@ -69,4 +68,6 @@ pipeline{
 	  }
   }
 }
+
+
 	
