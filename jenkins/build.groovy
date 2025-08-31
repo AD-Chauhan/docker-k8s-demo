@@ -10,7 +10,7 @@ pipeline{
 	stages{
 	stage("Checkout from GitHub"){
 		steps{
-			git 'https://github.com/AD-Chauhan/docker-k8s-app.git'
+			git 'https://github.com/AD-Chauhan/docker-k8s-demo.git'
 		}
 	}
 	
