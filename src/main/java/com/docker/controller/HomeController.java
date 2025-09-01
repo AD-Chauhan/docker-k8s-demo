@@ -9,7 +9,7 @@ public class HomeController {
 
 	@GetMapping("/get/message")
 	public String getMessage(@RequestParam(required = true) String name) {
-		return "Welcome To Docker & K8s and Deploy by jenkins : " + name;
+		return "Welcome Docker & K8s Deploy by Jenkins! " + name;
 
 	}
 
