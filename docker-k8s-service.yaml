@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: docker-k8s
-        image: ad1989/docker-k8s:1
-        imagePullPolicy: IfNotPresent
+        image: ad1989/docker-k8s:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8090

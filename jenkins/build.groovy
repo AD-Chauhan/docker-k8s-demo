@@ -2,7 +2,9 @@ pipeline{
 	agent any
 	environment{
 	   DOCKER_IMAGE_NAME = 'ad1989/docker-k8s'  // Set a name for the Docker image
-	   DOCKER_TAG = "${env.BUILD_NUMBER}"         // Tag for the Docker image (e.g., "1")
+	   //DOCKER_TAG = "${env.BUILD_NUMBER}"         // Tag for the Docker image (e.g., "1")
+	   DOCKER_TAG = 'latest'     
+	   
 		   
 	   
 	}
@@ -24,6 +26,7 @@ pipeline{
 		script {
             withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                 bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+				bat 'docker rmi ad1989/docker-k8s:latest'
                 docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
             }
           }
@@ -43,12 +46,15 @@ pipeline{
 	
    stage('Deploying container to Kubernetes') {
 	      steps {
-		  script {
-	       withKubeConfig([credentialsId: 'KUBECONFIG_CREDENTIAL']) {
-                 bat 'kubectl delete svc docker-k8s-service'
-			     bat 'kubectl apply -f docker-k8s-service.yaml'
-          }
-		  }
+		 script {
+                    withKubeConfig([credentialsId: 'KUBECONFIG_CREDENTIAL']) {
+                        bat """
+                            kubectl delete svc docker-k8s-service --ignore-not-found
+                            kubectl apply -f docker-k8s-service.yaml
+                        """
+                    }
+				
+		   }
 	      }
 	  
 	}
