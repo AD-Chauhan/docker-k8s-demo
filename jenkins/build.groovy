@@ -2,7 +2,7 @@ pipeline{
 	agent any
 	environment{
 	   DOCKER_IMAGE_NAME = 'ad1989/docker-k8s'  // Set a name for the Docker image
-	   DOCKER_TAG = '1'         // Tag for the Docker image (e.g., "1")
+	   DOCKER_TAG = "${env.BUILD_NUMBER}"         // Tag for the Docker image (e.g., "1")
 		   
 	   
 	}
